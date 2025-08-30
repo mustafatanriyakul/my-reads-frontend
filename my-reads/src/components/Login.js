@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 
-import { Button, Form } from "react-bootstrap";
+import { Button, Form} from "react-bootstrap";
+import { Link, useNavigate } from "react-router-dom";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  
+  const successfull_register_message = "User logged in successfully.";
+
+  const navigate = useNavigate();
 
   const HandleLogin = () => {
     const RequestBody = {
@@ -22,12 +27,25 @@ function Login() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Response from backend:", data);
-
+        
         alert(data.message);
+
+        if(data.message === successfull_register_message){
+          const userId = data.body.id;
+
+          localStorage.setItem("isUserLoggedIn", "true")
+          localStorage.setItem("userId", userId)
+
+          navigate(`/mybooks/${userId}`)
+        }
+
+        
       })
       .catch((error) => {
         console.error("Login error", error);
       });
+      
+     
   };
 
   return (
@@ -69,6 +87,8 @@ function Login() {
             Login
           </Button>
         </Form>
+
+        <Link to="/signup"> Don't have an account?</Link>
       </div>
     </div>
   );

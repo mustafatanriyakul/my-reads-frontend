@@ -1,10 +1,15 @@
 import React, { useState } from "react";
 
 import { Button, Form } from "react-bootstrap";
+import { useNavigate, Link } from "react-router-dom";
 
-function Register() {
+function SignUp() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const successfull_register_message = "User registered successfully.";
+  const user_exists_message = "Username already exists."
+
+  const navigate = useNavigate();
 
   const HandleRegister = () => {
     const RequestBody = {
@@ -12,7 +17,7 @@ function Register() {
       password: password,
     };
 
-    fetch(`http://localhost:8080/users/register`, {
+    fetch(`http://localhost:8080/users/signup`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -22,8 +27,19 @@ function Register() {
       .then((response) => response.json())
       .then((data) => {
         console.log("Response from backend:", data);
-
         alert(data.message);
+
+        if(data.message === user_exists_message){
+          navigate("/login")
+        }
+        
+
+        if (data.message === successfull_register_message){
+          const userId = data.body.id;
+          navigate(`/mybooks/${userId}`)
+        }
+
+        
       })
       .catch((error) => {
         console.error("Register error", error);
@@ -69,9 +85,11 @@ function Register() {
             Register
           </Button>
         </Form>
+        
+        <Link to="/login"> Already have an account?</Link>
       </div>
     </div>
   );
 }
 
-export default Register;
+export default SignUp;

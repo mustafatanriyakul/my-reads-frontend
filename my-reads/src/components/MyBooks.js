@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
 const MyBooks = () => {
   const [myBooks, setMyBooks] = useState([]);
-  const [userId, setUserId] = useState(1);
+  const params = useParams();
+  const userId = params.userId;
 
   useEffect(() => {
     fetch(`http://localhost:8080/mybooks/${userId}`)
@@ -10,24 +12,18 @@ const MyBooks = () => {
       .then((data) => {
         if (data.body) {
           setMyBooks(data.body);
+          console.log(data)
         } else {
           setMyBooks([]);
         }
       })
       .catch((error) => console.error("Fetching error", error));
-  }, [userId]);
+  }, []);
 
   return (
     <div style={{ padding: "20px" }}>
       <h1>MyBooks</h1>
 
-      <input
-        type="text"
-        placeholder="userId.."
-        value={userId}
-        onChange={(e) => setUserId(e.target.value)}
-        style={{ marginBottom: "20px", padding: "8px",  width: "300px" }}
-      ></input>
 
       <table
         border="1"
@@ -47,7 +43,7 @@ const MyBooks = () => {
             myBooks.map((myBook) => (
               <tr key={myBook.id}>
                 <td>{myBook.bookTitle}</td>
-                <td>{myBook.authorName}</td>
+                <Link to = {`/authors/${myBook.authorId}`}>{myBook.authorName}</Link>
                 <td>{myBook.dateRead}</td>
                 <td>{myBook.dateAdded}</td>
               </tr>
