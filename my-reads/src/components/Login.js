@@ -1,51 +1,38 @@
 import React, { useState } from "react";
 
-import { Button, Form} from "react-bootstrap";
+import { Button, Form } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
+import axiosInstance from "../common/axiosInstance";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  
+
   const successfull_register_message = "User logged in successfully.";
 
   const navigate = useNavigate();
 
-  const HandleLogin = () => {
-    const RequestBody = {
-      username: username,
-      password: password,
-    };
-
-    fetch(`http://localhost:8080/users/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(RequestBody),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log("Response from backend:", data);
-        
-        alert(data.message);
-
-        if(data.message === successfull_register_message){
-          const userId = data.body.id;
-
-          localStorage.setItem("isUserLoggedIn", "true")
-          localStorage.setItem("userId", userId)
-
-          navigate(`/mybooks/${userId}`)
-        }
-
-        
-      })
-      .catch((error) => {
-        console.error("Login error", error);
+  const HandleLogin = async () => {
+    try {
+      const response = await axiosInstance.post("/users/login", {
+        username,
+        password,
       });
-      
-     
+
+      console.log("Response from backend:", response.data);
+
+      if (response.data.message === successfull_register_message) {
+        alert("Login successful");
+
+        localStorage.setItem("isUserLoggedIn", "true");
+        navigate("/mybooks");
+      } else {
+        alert(response.data.message || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      alert("Login failed");
+    }
   };
 
   return (

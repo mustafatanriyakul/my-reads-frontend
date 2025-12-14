@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { Card, Container, Row, Col } from "react-bootstrap";
+import axiosInstance from "../common/axiosInstance";
 
 function Author() {
   const [bookList, setBookList] = useState([]);
@@ -7,61 +9,75 @@ function Author() {
   const params = useParams();
   const authorId = params.authorId;
 
+  const [authorName, setAuthorName] = useState("");
+  const [birthplace, setBirthplace] = useState("");
+  const [genres, setGenres] = useState([]);
 
   useEffect(() => {
-    fetch(`http://localhost:8080/authors/${authorId}/books`)
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(data)
-        if (data.body) {
-          setBookList(data.body);
+    const fetchAuthorDetails = async () => {
+      try {
+        const response = await axiosInstance.get(`/authors/${authorId}`);
+        setAuthorName(response.data.body.authorName);
+        setBirthplace(response.data.body.birthplace);
+        setGenres(response.data.body.genres);
+      } catch (error) {
+        console.log("Fetching Author Details error: ", error);
+      }
+    };
+
+    const fetchAuthorBooks = async () => {
+      try {
+        const response = await axiosInstance.get(`/authors/${authorId}/books`);
+        if (response.data.body) {
+          setBookList(response.data.body);
         } else {
           setBookList([]);
         }
-      })
-      .catch((error) => console.error("Fetching error", error));
+      } catch (error) {
+        console.log("Fetching Author Books error: ", error);
+      }
+    };
 
-
-
+    fetchAuthorDetails();
+    fetchAuthorBooks();
   }, [authorId]);
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>Author</h1>
+    <Container>
+      <Card className="mb-4 shadow-sm">
+        <Card.Body>
+          <Card.Title>{authorName}</Card.Title>
+          <Card.Text>
+            Born in {birthplace}
+            <br />
+            Genres: {genres.length > 0 ? genres.join(", ") : "—"}
+          </Card.Text>
+        </Card.Body>
+      </Card>
 
+      <h4 className="mb-3">Books</h4>
 
-
-      <table
-        border="1"
-        cellPadding="8"
-        style={{ borderCollapse: "collapse", width: "100%" }}
-      >
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>ISBN</th>
-            <th>Publish Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {bookList.length > 0 ? (
-            bookList.map((book) => (
-              <tr key={book.id}>
-                <td>{book.title}</td>
-                <td>{book.isbn}</td>
-                <td>{book.datePublished}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5" style={{ textAlign: "center" }}>
-                No book found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+      <Row>
+        {bookList.length > 0 ? (
+          bookList.map((book) => (
+            <Col md={4} lg={3} key={book.id} className="mb-4">
+              <Card className="h-100 shadow-sm">
+                <Card.Body>
+                  <Card.Title>{book.title}</Card.Title>
+                  <Card.Text style={{ fontSize: "0.9rem" }}>
+                    ISBN: {book.isbn}
+                    <br />
+                    Published: {book.datePublished}
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
+        ) : (
+          <p>No books found</p>
+        )}
+      </Row>
+    </Container>
   );
 }
 

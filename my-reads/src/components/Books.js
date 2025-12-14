@@ -1,20 +1,32 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { Card, Container, Row, Col, Form } from "react-bootstrap";
+import axiosInstance from "../common/axiosInstance";
 
 function Books() {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
-    fetch("http://localhost:8080/books/all")
-      .then((response) => response.json())
-      .then((data) => {
-        if (data.body) {
-          setBooks(data.body);
+    const fetchAllBooks = async () => {
+      try {
+        const response = await axiosInstance.get("/books/all");
+
+        console.log("Axios response: ", response);
+
+        if (response.data.body.length > 0) {
+          setBooks(response.data.body);
+          console.log("All books fetched");
         } else {
           setBooks([]);
+          console.log("No books fetched");
         }
-      })
-      .catch((error) => console.error("Fetching error", error));
+      } catch (error) {
+        console.log("Fetching error: ", error);
+      }
+    };
+
+    fetchAllBooks();
   }, []);
 
   const searchedBooks = books.filter((book) =>
@@ -22,46 +34,44 @@ function Books() {
   );
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>All Books</h1>
+    <Container>
+      <h2 className="mb-4">All Books</h2>
 
-      <input
-        type="text"
-        placeholder="Search.."
+      <Form.Control
+        placeholder="Search book title..."
+        className="mb-4"
+        style={{ maxWidth: "400px" }}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        style={{ marginBottom: "20px", padding: "8px",  width: "300px" }}
       />
 
-      <table border="1" cellPadding="8" style={{ borderCollapse: "collapse", width: "100%" }}>
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>ISBN</th>
-            <th>Publish Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          {searchedBooks.length > 0 ? (
-            searchedBooks.map((book) => (
-              <tr key={book.id}>
-                <td>{book.title}</td>
-                <td>{book.authorName}</td>
-                <td>{book.isbn}</td>
-                <td>{book.datePublished}</td>
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="5" style={{ textAlign: "center" }}>
-                No books found
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+      <Row>
+        {searchedBooks.length > 0 ? (
+          searchedBooks.map((book) => (
+            <Col md={4} lg={3} key={book.id} className="mb-4">
+              <Card className="h-100 shadow-sm">
+                <Card.Body>
+                  <Card.Title>{book.title}</Card.Title>
+                  <Card.Subtitle className="mb-2 text-muted">
+                    <Link to={`/authors/${book.authorId}`}>
+                      {book.authorName}
+                    </Link>
+                  </Card.Subtitle>
+
+                  <Card.Text style={{ fontSize: "0.9rem" }}>
+                    ISBN: {book.isbn}
+                    <br />
+                    Published: {book.datePublished}
+                  </Card.Text>
+                </Card.Body>
+              </Card>
+            </Col>
+          ))
+        ) : (
+          <p>No books found</p>
+        )}
+      </Row>
+    </Container>
   );
 }
 

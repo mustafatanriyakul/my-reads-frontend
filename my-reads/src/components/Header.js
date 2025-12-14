@@ -1,35 +1,39 @@
 import React from "react";
 import { Container, Nav, Navbar, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import axiosInstance from "../common/axiosInstance";
 
 function Header() {
   const isUserLoggedIn = localStorage.getItem("isUserLoggedIn");
-  const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
   if (!isUserLoggedIn) {
     return null;
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     localStorage.removeItem("isUserLoggedIn");
-    localStorage.removeItem("userId");
+    const response = await axiosInstance.post("/users/logout");
+    console.log(response);
     navigate("/login");
   };
 
   return (
-    <Navbar>
+    <Navbar bg="dark" variant="dark" expand="lg" className="mb-4 shadow-sm">
       <Container>
-        <Nav>
-          <Nav.Link href="/books">Books</Nav.Link>
-          <Nav.Link href={`/mybooks/${userId}`}>MyBooks</Nav.Link>
-        </Nav>
+        <Navbar.Brand style={{ fontWeight: "bold" }}>📚 MyReads</Navbar.Brand>
 
-        <Nav>
-          <Button variant="outline-danger" onClick= {handleLogout}>
+        <Navbar.Toggle />
+        <Navbar.Collapse>
+          <Nav className="me-auto">
+            <Nav.Link href="/books">Books</Nav.Link>
+            <Nav.Link href="/mybooks">My Books</Nav.Link>
+          </Nav>
+
+          <Button variant="outline-light" onClick={handleLogout}>
             Logout
           </Button>
-        </Nav>
+        </Navbar.Collapse>
       </Container>
     </Navbar>
   );
