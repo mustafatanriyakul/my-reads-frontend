@@ -1,16 +1,18 @@
 import React, { useState } from "react";
-
-import { Button, Form } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Button, Form, Card, Container } from "react-bootstrap";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import axiosInstance from "../common/axiosInstance";
+import { useAuth } from "../auth/AuthContext";
 
 function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const successfull_register_message = "User logged in successfully.";
-
   const navigate = useNavigate();
+  const location = useLocation();
+  const { loginContext } = useAuth();
+
+  const fromPath = location.state?.from?.pathname || "/mybooks";
 
   const HandleLogin = async () => {
     try {
@@ -18,66 +20,67 @@ function Login() {
         username,
         password,
       });
+      console.log(response);
 
-      console.log("Response from backend:", response.data);
+      loginContext();
+      navigate(fromPath, { replace: true });
 
-      if (response.data.message === successfull_register_message) {
-        alert("Login successful");
-
-        localStorage.setItem("isUserLoggedIn", "true");
-        navigate("/mybooks");
-      } else {
-        alert(response.data.message || "Login failed");
-      }
     } catch (error) {
-      console.error("Login error:", error);
-      alert("Login failed");
+      console.log(error);
+      alert(error.response.data.message);
     }
   };
 
   return (
-    <div
-      style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        height: "100vh",
-      }}
+    <Container
+      fluid
+      className="d-flex align-items-center justify-content-center"
+      style={{ minHeight: "100vh", backgroundColor: "#f8f9fa" }}
     >
-      <div>
-        <h1 style={{ textAlign: "center" }}>Login</h1>
+      <Card className="shadow-sm" style={{ width: "420px" }}>
+        <Card.Body>
+          <h3 className="text-center mb-2">Login</h3>
+          <p className="text-center text-muted mb-4">
+            Login to continue reading
+          </p>
 
-        <Form>
-          <Form.Group className="mb-3" controlId="formUsername">
-            <Form.Label>Username</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              style={{ width: "400px" }}
-            />
-          </Form.Group>
+          <Form>
+            <Form.Group className="mb-3">
+              <Form.Label>Username</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+            </Form.Group>
 
-          <Form.Group className="mb-3" controlId="formPassword">
-            <Form.Label>Password</Form.Label>
-            <Form.Control
-              type="password"
-              placeholder="Enter password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ width: "400px" }}
-            />
-          </Form.Group>
+            <Form.Group className="mb-4">
+              <Form.Label>Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </Form.Group>
 
-          <Button variant="primary" onClick={HandleLogin}>
-            Login
-          </Button>
-        </Form>
+            <Button
+              variant="primary"
+              className="w-100 mb-3"
+              onClick={HandleLogin}
+            >
+              Login
+            </Button>
+          </Form>
 
-        <Link to="/signup"> Don't have an account?</Link>
-      </div>
-    </div>
+          <div className="text-center">
+            <span className="text-muted">Don’t have an account? </span>
+            <Link to="/signup">Sign up</Link>
+          </div>
+        </Card.Body>
+      </Card>
+    </Container>
   );
 }
 

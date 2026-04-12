@@ -2,9 +2,11 @@ import React from "react";
 import { Container, Nav, Navbar, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import axiosInstance from "../common/axiosInstance";
+import { useAuth } from "../auth/AuthContext";
 
 function Header() {
   const isUserLoggedIn = localStorage.getItem("isUserLoggedIn");
+  const {logoutContext} = useAuth();
   const navigate = useNavigate();
 
   if (!isUserLoggedIn) {
@@ -12,10 +14,10 @@ function Header() {
   }
 
   const handleLogout = async () => {
-    localStorage.removeItem("isUserLoggedIn");
+    logoutContext();
     const response = await axiosInstance.post("/users/logout");
     console.log(response);
-    navigate("/login");
+    navigate("/login", { replace: true });
   };
 
   return (

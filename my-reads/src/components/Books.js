@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { Card, Container, Row, Col, Form } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Container, Row, Col, Form } from "react-bootstrap";
 import axiosInstance from "../common/axiosInstance";
+import BookCard from "../common/BookCard";
 
 function Books() {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
 
   useEffect(() => {
     const fetchAllBooks = async () => {
@@ -33,6 +34,8 @@ function Books() {
     book.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  
+
   return (
     <Container>
       <h2 className="mb-4">All Books</h2>
@@ -49,22 +52,7 @@ function Books() {
         {searchedBooks.length > 0 ? (
           searchedBooks.map((book) => (
             <Col md={4} lg={3} key={book.id} className="mb-4">
-              <Card className="h-100 shadow-sm">
-                <Card.Body>
-                  <Card.Title>{book.title}</Card.Title>
-                  <Card.Subtitle className="mb-2 text-muted">
-                    <Link to={`/authors/${book.authorId}`}>
-                      {book.authorName}
-                    </Link>
-                  </Card.Subtitle>
-
-                  <Card.Text style={{ fontSize: "0.9rem" }}>
-                    ISBN: {book.isbn}
-                    <br />
-                    Published: {book.datePublished}
-                  </Card.Text>
-                </Card.Body>
-              </Card>
+              <BookCard book= {book}/>
             </Col>
           ))
         ) : (

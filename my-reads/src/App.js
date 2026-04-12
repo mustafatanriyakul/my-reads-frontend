@@ -7,20 +7,29 @@ import Login from "./components/Login";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "./components/Header";
 import { Route, Routes } from "react-router-dom";
+import { AuthProvider } from "./auth/AuthContext"; 
+import ProtectedRoute from "./auth/ProtectedRoute"; 
+import Book from "./components/Book";
 
 function App() {
   return (
-    <div>
-      <Header />
-      <Routes>
-        <Route path="/" element={<Login />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/books" element={<Books />} />
-        <Route path="/mybooks/" element={<MyBooks />} />
-        <Route path="/authors/:authorId" element={<Author />} />
-      </Routes>
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <Header />
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+
+          <Route element={<ProtectedRoute />}>
+            <Route path="/books" element={<Books />} />
+            <Route path="books/:bookId" element={<Book />} />
+            <Route path="/mybooks" element={<MyBooks />} />
+            <Route path="/authors/:authorId" element={<Author />} />
+          </Route>
+        </Routes>
+      </div>
+    </AuthProvider>
   );
 }
 

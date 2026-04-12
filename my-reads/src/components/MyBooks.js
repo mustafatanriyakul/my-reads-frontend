@@ -1,9 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Card, Container, Row, Col, Button } from "react-bootstrap";
+import {
+  Card,
+  Container,
+  Row,
+  Col,
+  Button,
+  ButtonGroup,
+  Dropdown,
+} from "react-bootstrap";
 import { FaSortUp, FaSortDown } from "react-icons/fa";
 
 import axiosInstance from "../common/axiosInstance";
+import { updateBookStatus } from "../common/CommonUtils";
 
 const MyBooks = () => {
   const [myBooks, setMyBooks] = useState([]);
@@ -84,9 +93,9 @@ const MyBooks = () => {
   };
 
   const formatStatus = (status) => {
-    switch(status){
+    switch (status) {
       case "TO_READ":
-        return "to read";
+        return "want to read";
       case "CURRENTLY_READING":
         return "currently reading";
       case "READ":
@@ -97,6 +106,14 @@ const MyBooks = () => {
     }
   };
 
+  const handleStatusUpdate = (bookId, newStatus) => {
+    setMyBooks((prev) =>
+      prev.map((book) =>
+        book.bookId === bookId ? { ...book, status: newStatus } : book,
+      ),
+    );
+  };
+
   return (
     <Container>
       <h2 className="mb-4">My Books</h2>
@@ -104,95 +121,153 @@ const MyBooks = () => {
       <Card className="mb-2 shadow-sm">
         <Card.Body>
           <Row className="fw-bold text-muted">
+            <Col md={1} /> {/* cover kolonu için boş header */}
             <Col md={3}>
               <Button
                 variant="link"
                 className="p-0 fw-bold"
                 onClick={() => handleSort("bookTitle")}
               >
-                Title
-                {renderSortIcon("bookTitle")}
+                Title {renderSortIcon("bookTitle")}
               </Button>
             </Col>
-
-            <Col md={3}>
+            <Col md={2}>
               <Button
                 variant="link"
                 className="p-0 fw-bold"
                 onClick={() => handleSort("authorName")}
               >
-                Author
-                {renderSortIcon("authorName")}
+                Author {renderSortIcon("authorName")}
               </Button>
             </Col>
-
             <Col md={2}>
               <Button
                 variant="link"
                 className="p-0 fw-bold"
                 onClick={() => handleSort("status")}
               >
-                Status
-                {renderSortIcon("status")}
+                Status {renderSortIcon("status")}
               </Button>
             </Col>
-
             <Col md={2}>
               <Button
                 variant="link"
                 className="p-0 fw-bold"
                 onClick={() => handleSort("dateRead")}
               >
-                Date Read
-                {renderSortIcon("dateRead")}
+                Date Read {renderSortIcon("dateRead")}
               </Button>
             </Col>
-
             <Col md={2}>
               <Button
                 variant="link"
                 className="p-0 fw-bold"
                 onClick={() => handleSort("dateAdded")}
               >
-                Date Added
-                {renderSortIcon("dateAdded")}
+                Date Added {renderSortIcon("dateAdded")}
               </Button>
             </Col>
           </Row>
         </Card.Body>
       </Card>
 
-      {myBooks.length > 0 ? (
-        myBooks.map((book) => (
-          <Card
-            key={book.id}
-            className="mb-2 shadow-sm"
-            style={{ cursor: "pointer" }}
-          >
-            <Card.Body>
-              <Row className="align-items-center">
-                <Col md={3} className="fw-semibold">
-                  {book.bookTitle}
-                </Col>
+      {myBooks.map((userBook) => (
+        <Card
+          key={userBook.id}
+          className="mb-2 shadow-sm"
+          style={{ cursor: "pointer" }}
+        >
+          <Card.Body>
+            <Row className="align-items-center">
+              <Col md={1}>
+                {userBook.coverImageBase64 ? (
+                  <img
+                    src={`data:${userBook.coverImageType};base64,${userBook.coverImageBase64}`}
+                    alt={userBook.bookTitle}
+                    style={{
+                      width: "40px",
+                      height: "56px",
+                      objectFit: "contain",
+                      background: "#f8f9fa",
+                      borderRadius: "3px",
+                    }}
+                  />
+                ) : (
+                  <div
+                    style={{
+                      width: "40px",
+                      height: "56px",
+                      background: "#e9ecef",
+                      borderRadius: "3px",
+                    }}
+                  />
+                )}
+              </Col>
 
-                <Col md={3}>
-                  <Link to={`/authors/${book.authorId}`}>
-                    {book.authorName}
-                  </Link>
-                </Col>
+              <Col md={3} className="fw-semibold">
+                <Link to={`/books/${userBook.bookId}`}>
+                  {userBook.bookTitle}
+                </Link>
+              </Col>
+              <Col md={2}>
+                <Link to={`/authors/${userBook.authorId}`}>
+                  {userBook.authorName}
+                </Link>
+              </Col>
+              <Col md={2}>
+                {formatStatus(userBook.status)}
+                <Dropdown as={ButtonGroup}>
+                  <Dropdown.Toggle
+                    split
+                    variant="success"
+                    id="dropdown-split-basic"
+                  />
 
-                <Col md={2}>{formatStatus(book.status)}</Col>
-
-                <Col md={2}>{book.dateRead || "—"}</Col>
-
-                <Col md={2}>{book.dateAdded}</Col>
-              </Row>
-            </Card.Body>
-          </Card>
-        ))
-      ) : (
-        <p className="text-center mt-4">No books in your list</p>
-      )}
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      onClick={() =>
+                        updateBookStatus(
+                          userBook.bookId,
+                          "TO_READ",
+                          handleStatusUpdate,
+                        )
+                      }
+                    >
+                      want to read
+                    </Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item
+                      onClick={() =>
+                        updateBookStatus(
+                          userBook.bookId,
+                          "CURRENTLY_READING",
+                          handleStatusUpdate,
+                        )
+                      }
+                    >
+                      currently reading
+                    </Dropdown.Item>
+                    <Dropdown.Divider />
+                    <Dropdown.Item
+                      onClick={() =>
+                        updateBookStatus(
+                          userBook.bookId,
+                          "READ",
+                          handleStatusUpdate,
+                        )
+                      }
+                    >
+                      read
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
+              </Col>
+              <Col md={2}>{userBook.dateRead || "—"}</Col>
+              <Col md={2}>{userBook.dateAdded}</Col>
+            </Row>
+          </Card.Body>
+        </Card>
+      ))}
     </Container>
   );
 };

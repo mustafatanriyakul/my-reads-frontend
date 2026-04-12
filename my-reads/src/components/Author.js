@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Card, Container, Row, Col } from "react-bootstrap";
 import axiosInstance from "../common/axiosInstance";
+import BookCard from "../common/BookCard";
 
 function Author() {
   const [bookList, setBookList] = useState([]);
@@ -61,16 +62,7 @@ function Author() {
         {bookList.length > 0 ? (
           bookList.map((book) => (
             <Col md={4} lg={3} key={book.id} className="mb-4">
-              <Card className="h-100 shadow-sm">
-                <Card.Body>
-                  <Card.Title>{book.title}</Card.Title>
-                  <Card.Text style={{ fontSize: "0.9rem" }}>
-                    ISBN: {book.isbn}
-                    <br />
-                    Published: {book.datePublished}
-                  </Card.Text>
-                </Card.Body>
-              </Card>
+              <BookCard book={book} />
             </Col>
           ))
         ) : (
