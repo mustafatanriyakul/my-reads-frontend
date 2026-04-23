@@ -1,33 +1,36 @@
 import React, { useState } from "react";
 import { Button, Form, Card, Container } from "react-bootstrap";
-import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axiosInstance from "../common/axiosInstance";
-import { useAuth } from "../auth/AuthContext";
 
-function Login() {
+function SignUp() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [errors, setErrors] = useState({});
+
+  const successfull_register_message = "User signed up.";
+  const user_exists_message = "Username already exists.";
 
   const navigate = useNavigate();
-  const location = useLocation();
-  const { loginContext } = useAuth();
 
-  const fromPath = location.state?.from?.pathname || "/mybooks";
-
-  const HandleLogin = async () => {
+  const HandleSignUp = async () => {
     try {
-      const response = await axiosInstance.post("/users/login", {
+      const response = await axiosInstance.post("/users/signup", {
         username,
         password,
       });
-      console.log(response);
+      console.log(response)
 
-      loginContext();
-      navigate(fromPath, { replace: true });
-
+      if (
+        response.data.message === user_exists_message ||
+        response.data.message === successfull_register_message
+      ) {
+        alert(response.data.message);
+        navigate("/login");
+      }
     } catch (error) {
-      console.log(error);
-      alert(error.response.data.message);
+      console.log(error)
+      setErrors(error.response.data.fieldErrors);
     }
   };
 
@@ -39,9 +42,9 @@ function Login() {
     >
       <Card className="shadow-sm" style={{ width: "420px" }}>
         <Card.Body>
-          <h3 className="text-center mb-2">Login</h3>
+          <h3 className="text-center mb-2">Create Account</h3>
           <p className="text-center text-muted mb-4">
-            Login to continue reading
+            Join MyReads and track your books 📚
           </p>
 
           <Form>
@@ -52,7 +55,11 @@ function Login() {
                 placeholder="Enter username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                isInvalid={!!errors.username}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.username}
+              </Form.Control.Feedback>
             </Form.Group>
 
             <Form.Group className="mb-4">
@@ -62,21 +69,25 @@ function Login() {
                 placeholder="Enter password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                isInvalid={!!errors.password}
               />
+              <Form.Control.Feedback type="invalid">
+                {errors.password}
+              </Form.Control.Feedback>
             </Form.Group>
 
             <Button
               variant="primary"
               className="w-100 mb-3"
-              onClick={HandleLogin}
+              onClick={HandleSignUp}
             >
-              Login
+              Sign Up
             </Button>
           </Form>
 
           <div className="text-center">
-            <span className="text-muted">Don’t have an account? </span>
-            <Link to="/signup">Sign up</Link>
+            <span className="text-muted">Already have an account? </span>
+            <Link to="/login">Login</Link>
           </div>
         </Card.Body>
       </Card>
@@ -84,4 +95,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default SignUp;
