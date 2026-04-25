@@ -7,9 +7,10 @@ import Login from "./components/Login";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Header from "./components/Header";
 import { Route, Routes } from "react-router-dom";
-import { AuthProvider } from "./auth/AuthContext"; 
-import ProtectedRoute from "./auth/ProtectedRoute"; 
+import { AuthProvider } from "./auth/AuthContext";
+import ProtectedRoute from "./auth/ProtectedRoute";
 import Book from "./components/Book";
+import BookReview from "./components/BookReview";
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="books/:bookId" element={<Book />} />
             <Route path="/mybooks" element={<MyBooks />} />
             <Route path="/authors/:authorId" element={<Author />} />
+            <Route path="/book-review/:bookId" element={<BookReview />} />
           </Route>
         </Routes>
       </div>
