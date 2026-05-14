@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import axiosInstance from "../common/axiosInstance";
 import { useAuth } from "../auth/AuthContext";
 
+import "./Header.css"
+
 function Header() {
   const isUserLoggedIn = localStorage.getItem("isUserLoggedIn");
   const {logoutContext} = useAuth();
@@ -21,24 +23,42 @@ function Header() {
   };
 
   return (
-    <Navbar bg="dark" variant="dark" expand="lg" className="mb-4 shadow-sm">
-      <Container>
-        <Navbar.Brand style={{ fontWeight: "bold" }}>📚 MyReads</Navbar.Brand>
+  <Navbar expand="lg" className="custom-navbar">
+    <Container>
+      
+      {/* LOGO */}
+      <Navbar.Brand
+        className="brand"
+        onClick={() => navigate("/books")}
+      >
+        📚 MyReads
+      </Navbar.Brand>
 
-        <Navbar.Toggle />
-        <Navbar.Collapse>
-          <Nav className="me-auto">
-            <Nav.Link href="/books">Books</Nav.Link>
-            <Nav.Link href="/mybooks">My Books</Nav.Link>
-          </Nav>
+      <Navbar.Toggle />
 
-          <Button variant="outline-light" onClick={handleLogout}>
+      <Navbar.Collapse>
+        
+        {/* NAV LINKS */}
+        <Nav className="me-auto nav-links">
+          <Nav.Link onClick={() => navigate("/books")}>
+            Books
+          </Nav.Link>
+          <Nav.Link onClick={() => navigate("/mybooks")}>
+            My Books
+          </Nav.Link>
+        </Nav>
+
+        {/* RIGHT SIDE */}
+        <div className="nav-actions">
+          <Button className="logout-btn" onClick={handleLogout}>
             Logout
           </Button>
-        </Navbar.Collapse>
-      </Container>
-    </Navbar>
-  );
+        </div>
+
+      </Navbar.Collapse>
+    </Container>
+  </Navbar>
+);
 }
 
 export default Header;

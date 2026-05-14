@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Card, Container, Row, Col } from "react-bootstrap";
 import axiosInstance from "../common/axiosInstance";
 import BookCard from "../common/BookCard";
 
+import "./Author.css";
+
 function Author() {
-  const [bookList, setBookList] = useState([]);
+  const [books, setBooks] = useState([]);
 
   const params = useParams();
   const authorId = params.authorId;
@@ -13,6 +15,8 @@ function Author() {
   const [authorName, setAuthorName] = useState("");
   const [birthplace, setBirthplace] = useState("");
   const [genres, setGenres] = useState([]);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAuthorDetails = async () => {
@@ -30,9 +34,9 @@ function Author() {
       try {
         const response = await axiosInstance.get(`/authors/${authorId}/books`);
         if (response.data.body) {
-          setBookList(response.data.body);
+          setBooks(response.data.body);
         } else {
-          setBookList([]);
+          setBooks([]);
         }
       } catch (error) {
         console.log("Fetching Author Books error: ", error);
@@ -44,31 +48,51 @@ function Author() {
   }, [authorId]);
 
   return (
-    <Container>
-      <Card className="mb-4 shadow-sm">
+    <Container className="mt-4 author-page">
+      {/* Author Info */}
+      <Card className="author-card mb-4">
         <Card.Body>
-          <Card.Title>{authorName}</Card.Title>
-          <Card.Text>
-            Born in {birthplace}
-            <br />
-            Genres: {genres.length > 0 ? genres.join(", ") : "—"}
-          </Card.Text>
+          <Card.Title className="author-name">{authorName}</Card.Title>
+
+          <div className="author-meta">
+            <span>📍 {birthplace || "Unknown"}</span>
+          </div>
+
+          <div className="author-genres">
+            {genres.length > 0 ? (
+              genres.map((genre, index) => (
+                <span key={index} className="genre-badge">
+                  {genre}
+                </span>
+              ))
+            ) : (
+              <span className="text-muted">No genres</span>
+            )}
+          </div>
         </Card.Body>
       </Card>
 
-      <h4 className="mb-3">Books</h4>
+      {/* Books Section */}
+      <div className="books-section">
+        <h4 className="section-title">Books</h4>
 
-      <Row>
-        {bookList.length > 0 ? (
-          bookList.map((book) => (
-            <Col md={4} lg={3} key={book.id} className="mb-4">
-              <BookCard book={book} />
-            </Col>
-          ))
-        ) : (
-          <p>No books found</p>
-        )}
-      </Row>
+        <Row className="g-4">
+          {books.length > 0 ? (
+            books.map((book) => (
+              <Col md={4} lg={3} key={book.id}>
+                <BookCard
+                  book={book}
+                  books={books}
+                  setBooks={setBooks}
+                  navigate={navigate}
+                />
+              </Col>
+            ))
+          ) : (
+            <div className="empty-state">No books found</div>
+          )}
+        </Row>
+      </div>
     </Container>
   );
 }

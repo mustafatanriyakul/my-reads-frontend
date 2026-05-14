@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Container, Row, Col, Form } from "react-bootstrap";
 import axiosInstance from "../common/axiosInstance";
 import BookCard from "../common/BookCard";
+
+import "./Books.css";
 
 function Books() {
   const [books, setBooks] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchAllBooks = async () => {
@@ -31,32 +35,38 @@ function Books() {
   }, []);
 
   const searchedBooks = books.filter((book) =>
-    book.title.toLowerCase().includes(searchTerm.toLowerCase())
+    book.title.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  
-
   return (
-    <Container>
-      <h2 className="mb-4">All Books</h2>
+    <Container className="books-page mt-4">
+      {/* HEADER */}
+      <div className="books-header">
+        <h2 className="page-title">All Books</h2>
 
-      <Form.Control
-        placeholder="Search book title..."
-        className="mb-4"
-        style={{ maxWidth: "400px" }}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+        <Form.Control
+          placeholder="Search books..."
+          className="search-input"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+      </div>
 
-      <Row>
+      {/* BOOK GRID */}
+      <Row className="g-4">
         {searchedBooks.length > 0 ? (
           searchedBooks.map((book) => (
-            <Col md={4} lg={3} key={book.id} className="mb-4">
-              <BookCard book= {book}/>
+            <Col md={4} lg={3} key={book.id}>
+              <BookCard
+                book={book}
+                books={books}
+                setBooks={setBooks}
+                navigate={navigate}
+              />
             </Col>
           ))
         ) : (
-          <p>No books found</p>
+          <div className="empty-state">No books found</div>
         )}
       </Row>
     </Container>

@@ -1,0 +1,40 @@
+.books-page {
+  background-color: #f9fafb;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.books-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.page-title {
+  font-weight: 700;
+  margin: 0;
+}
+
+.search-input {
+  max-width: 350px;
+  border-radius: 10px;
+  padding: 10px 14px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.2s ease;
+}
+
+.search-input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+}
+
+.empty-state {
+  text-align: center;
+  width: 100%;
+  padding: 50px 0;
+  color: #9ca3af;
+  font-size: 1rem;
+}

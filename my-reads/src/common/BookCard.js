@@ -1,73 +1,114 @@
 import { Link } from "react-router-dom";
 import { Card, Button, ButtonGroup, Dropdown } from "react-bootstrap";
-import { addToMyBooks } from "./CommonUtils";
+import { addToMyBooks, formatStatus, updateBookStatus } from "./CommonUtils";
 
-function BookCard({ book }) {
+import "./BookCard.css";
+
+function BookCard({ book, books, setBooks, navigate }) {
+  const handleStatusUpdate = (bookId, newStatus) => {
+    const updatedBooks = books.map((b) =>
+      b.id === bookId ? { ...b, status: newStatus } : b,
+    );
+
+    setBooks(updatedBooks);
+  };
+
   return (
-    <Card className="h-100 shadow-sm">
-      {book.coverImageBase64 ? (
-        <Card.Img
-          variant="top"
-          src={`data:${book.coverImageType};base64,${book.coverImageBase64}`}
-          alt={`${book.title} cover`}
-          style={{ height: "200px", objectFit: "contain", padding: "8px" }}
-        />
-      ) : (
-        <div
-          style={{
-            height: "200px",
-            background: "#e9ecef",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#adb5bd",
-            fontSize: "0.85rem",
-          }}
-        >
-          No cover
+    <Card className="book-card h-100">
+      {/* COVER */}
+      <div className="book-cover-wrapper">
+        {book.coverImageBase64 ? (
+          <img
+            src={`data:${book.coverImageType};base64,${book.coverImageBase64}`}
+            alt={`${book.title} cover`}
+            className="book-cover"
+          />
+        ) : (
+          <div className="no-cover">No cover</div>
+        )}
+      </div>
+
+      {/* BODY */}
+      <Card.Body className="d-flex flex-column">
+        <div className="book-info">
+          <Link to={`/books/${book.id}`} className="book-title">
+            {book.title}
+          </Link>
+
+          <Link to={`/authors/${book.authorId}`} className="book-author">
+            {book.authorName}
+          </Link>
+
+          <div className="book-meta">
+            <span>ISBN: {book.isbn || "—"}</span>
+            <span>{book.datePublished || "—"}</span>
+          </div>
         </div>
-      )}
 
-      <Card.Body>
-        <Card.Title>
-          <Link to={`/books/${book.id}`}>{book.title}</Link>
-        </Card.Title>
-        <Card.Subtitle className="mb-2 text-muted">
-          <Link to={`/authors/${book.authorId}`}>{book.authorName}</Link>
-        </Card.Subtitle>
+        {/* ACTIONS */}
+        <div className="book-actions mt-auto">
+          <Dropdown as={ButtonGroup} className="w-100">
+            {!book.status ? (
+              <Button
+                variant="primary"
+                className="action-btn"
+                onClick={() => navigate(`/book-review/${book.id}`)}
+              >
+                Want to read
+              </Button>
+            ) : (
+              <Button
+                variant="secondary"
+                className={`status-badge ALREADY`}
+              >
+                {formatStatus(book.status)}
+              </Button>
+            )}
 
-        <Card.Text style={{ fontSize: "0.9rem" }}>
-          ISBN: {book.isbn}
-          <br />
-          Published: {book.datePublished}
-        </Card.Text>
+            <Dropdown.Toggle split variant="primary" />
 
-        <Dropdown as={ButtonGroup}>
-          <Button
-            variant="success"
-            onClick={() => addToMyBooks(book.id, "TO_READ")}
-          >
-            want to Read
-          </Button>
+            <Dropdown.Menu>
+              <Dropdown.Item
+                onClick={() =>
+                  book.status
+                    ? updateBookStatus(book.id, "TO_READ", handleStatusUpdate)
+                    : addToMyBooks(book.id, "TO_READ", handleStatusUpdate)
+                }
+                className={`status-badge TO_READ`}
+              >
+                Want to read
+              </Dropdown.Item>
 
-          <Dropdown.Toggle split variant="success" id="dropdown-split-basic" />
+              <Dropdown.Item
+                onClick={() =>
+                  book.status
+                    ? updateBookStatus(
+                        book.id,
+                        "CURRENTLY_READING",
+                        handleStatusUpdate,
+                      )
+                    : addToMyBooks(
+                        book.id,
+                        "CURRENTLY_READING",
+                        handleStatusUpdate,
+                      )
+                }
+                className={`status-badge CURRENTLY_READING`}
+              >
+                Currently reading
+              </Dropdown.Item>
 
-          <Dropdown.Menu>
-            <Dropdown.Item onClick={() => addToMyBooks(book.id, "TO_READ")}>
-              want to read
-            </Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Item
-              onClick={() => addToMyBooks(book.id, "CURRENTLY_READING")}
-            >
-              currently reading
-            </Dropdown.Item>
-            <Dropdown.Divider />
-            <Dropdown.Item onClick={() => addToMyBooks(book.id, "READ")}>
-              read
-            </Dropdown.Item>
-          </Dropdown.Menu>
-        </Dropdown>
+              <Dropdown.Divider />
+
+              <Dropdown.Item
+                onClick={() => navigate(`/book-review/${book.id}`)}
+                className={`status-badge READ`}
+              >
+                Read
+              </Dropdown.Item>
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
       </Card.Body>
     </Card>
   );
