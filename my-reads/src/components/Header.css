@@ -48,3 +48,65 @@
 .logout-btn:hover {
   background: #dc2626;
 }
+
+.search-container {
+  position: relative;
+  width: 320px;
+  margin-right: 20px;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 48px;
+  width: 100%;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border: 1px solid #e5e7eb;
+}
+
+.search-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-item:hover {
+  background-color: #f9fafb;
+}
+
+.search-item:not(:last-child) {
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.search-cover {
+  width: 42px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+.search-book-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.search-book-title {
+  font-weight: 700;
+  color: #111827;
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.search-book-author {
+  color: #6b7280;
+  font-size: 0.82rem;
+  margin-top: 2px;
+}
